@@ -1,0 +1,33 @@
+plugins {
+
+    id 'com.github.johnrengelman.shadow' version '5.1.0'
+    id 'java'
+}
+
+group 'haha'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+repositories {
+    maven{
+        url 'https://maven.aliyun.com/nexus/content/repositories/central'
+    }
+
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    compile 'io.vertx:vertx-mysql-postgresql-client:3.8.1'
+    compile 'io.vertx:vertx-web:3.8.1'
+    compile 'io.vertx:vertx-rx-java2:3.8.1'
+    testCompile 'org.slf4j:slf4j-log4j12:2.0.0-alpha0'
+    compile 'org.slf4j:slf4j-api:2.0.0-alpha0'
+}
+
+shadowJar {
+    baseName = 'chat_server'
+    manifest {
+        attributes 'Main-Class': 'Main'
+    }
+}
