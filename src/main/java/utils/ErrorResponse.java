@@ -11,7 +11,8 @@ public enum ErrorResponse {
     DATABASE_ERROR(-5, "database error"),
     USER_EXISTED(-6, "user existed"),
     DUPLICATE_REQUEST(-7, "duplicate request"),
-    BAD_REQUEST(-8, "bad request")
+    BAD_REQUEST(-8, "bad request"),
+    WHAT_THE_HELL(-9, "what the hell is this")
     ;
 
     private int status;

@@ -2,11 +2,15 @@ package router;
 
 import bean.Interface.Login;
 import bean.Interface.Register;
+import io.reactivex.Scheduler;
 import io.reactivex.Single;
+import io.reactivex.schedulers.Schedulers;
+import io.vertx.core.json.JsonObject;
 import io.vertx.reactivex.ext.web.Router;
 import io.vertx.reactivex.ext.web.RoutingContext;
 import model.UserDao;
 import share.Share;
+import utils.EncryptionUtils;
 import utils.ErrorResponse;
 import utils.ResponseUtils;
 import utils.TrashBin;
@@ -53,30 +57,31 @@ public class AuthRouter {
 
     private static void login(RoutingContext context){
         TrashBin.drop(
-                Single.just(context)
-                .map(RoutingContext::getBodyAsJson)
-                .map(body -> body.mapTo(Login.class))
-                .doOnError(throwable -> ErrorResponse.BAD_JSON.responseFailure(context))
-                .flatMap(login ->
-                    UserDao.getUser(login.username)
-                    .doOnSuccess(user -> {
-                        if (user.password.equals(login.password)){
-                            context.session().put("username", login.username);
-                            ResponseUtils.responseSuccess(context);
-                        }else {
-                            ErrorResponse.PASSWORD_INCORRECT.responseFailure(context);
-                        }
-                    })
-                    .doOnError(throwable -> {
-                        ErrorResponse.DATABASE_ERROR.responseFailure(context);
-                    })
-                    .isEmpty()
-                    .doOnSuccess(aBoolean -> {
-                        if (aBoolean){
-                            ErrorResponse.NO_SUCH_USER.responseFailure(context);
-                        }
-                    })
-                ).subscribe()
+            Single.just(context)
+            .map(RoutingContext::getBodyAsJson)
+            .map(body -> body.mapTo(Login.class))
+            .doOnError(throwable -> ErrorResponse.BAD_JSON.responseFailure(context))
+            .flatMap(login ->
+                UserDao.getUser(login.username)
+                .doOnSuccess(user -> {
+                    if (user.password.equals(login.password)){
+                        context.session().put("username", login.username);
+                        context.session().put("key", EncryptionUtils.generateSecreteKey(login.public_key));
+                        ResponseUtils.responseSuccess(context, new JsonObject().put("msg", "ok").put("public_key", EncryptionUtils.generatePublicKey()));
+                    }else {
+                        ErrorResponse.PASSWORD_INCORRECT.responseFailure(context);
+                    }
+                })
+                .doOnError(throwable -> {
+                    ErrorResponse.DATABASE_ERROR.responseFailure(context);
+                })
+                .isEmpty()
+                .doOnSuccess(aBoolean -> {
+                    if (aBoolean){
+                        ErrorResponse.NO_SUCH_USER.responseFailure(context);
+                    }
+                })
+            ).subscribe()
         );
     }
 }

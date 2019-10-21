@@ -8,7 +8,7 @@ public class Config {
     public static final int ServerPort = 8888;
 
     //configuration about database
-    private static final String DataBaseHost = "127.0.0.1";
+    private static final String DataBaseHost = "39.106.91.186";
     private static final int DatabasePort = 5432;
     private static final String DatabaseUser = "postgres";
     private static final String DatabasePassword = "1104193296";
